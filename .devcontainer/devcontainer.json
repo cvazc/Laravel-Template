@@ -7,7 +7,7 @@
     "settings": {
         "terminal.integrated.shell.linux": "/bin/bash"
     },
-    "postCreateCommand": "bash setup.sh",
+    "postCreateCommand": "chmod +x setup.sh && bash setup.sh",
     "remoteUser": "vscode",
     "extensions": [
         "ms-azuretools.vscode-docker",

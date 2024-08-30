@@ -1,23 +1,12 @@
-FROM mcr.microsoft.com/vscode/devcontainers/php:8.0
+# Use the official Laravel Sail image as a base
+FROM laravelsail/php:8.3
 
-# Install Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt-get install -y nodejs
+# Install MySQL client
+RUN apt-get update && apt-get install -y mysql-client
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Install Node.js and npm
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y nodejs
 
-# Install Sail dependencies
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
-
-# Install Sail
-RUN composer global require laravel/sail
+# Clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
