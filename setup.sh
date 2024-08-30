@@ -23,6 +23,33 @@ fi
 composer create-project --prefer-dist "laravel/laravel:$LARAVEL_VERSION" "$PROJECT_NAME"
 cd "$PROJECT_NAME" || exit
 
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+
+# Configure Tailwind CSS in the tailwind.config.js file
+cat <<EOL > tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./resources/**/*.blade.php",
+    "./resources/**/*.js",
+    "./resources/**/*.vue",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+EOL
+
+# Set Tailwind CSS directives in resources/css/app.css
+mkdir -p resources/css
+cat <<EOL > resources/css/app.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+EOL
+
 # 2. Configure Laravel Sail and Docker
 composer require laravel/sail --dev
 php artisan sail:install
@@ -120,26 +147,6 @@ EOL
 mkdir -p docker/php
 echo 'FROM laravelsail/php:8.3' > docker/php/Dockerfile
 
-# 4. Install and configure Tailwind CSS
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-
-# Configure Tailwind CSS in the tailwind.config.js file
-cat <<EOL > tailwind.config.js
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./resources/**/*.blade.php",
-    "./resources/**/*.js",
-    "./resources/**/*.vue",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-EOL
-
 # Install Vite and the Laravel Vite package
 cat <<EOL > vite.config.js
 import { defineConfig } from 'vite';
@@ -161,16 +168,6 @@ export default defineConfig({
 });
 EOL
 
-# Set Tailwind CSS directives in resources/css/app.css
-mkdir -p resources/css
-cat <<EOL > resources/css/app.css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-EOL
-
-npm install
-
 # Set content in resources/views/welcome.blade.php
 mkdir -p resources/views
 cat <<EOL > resources/views/welcome.blade.php
@@ -183,7 +180,9 @@ cat <<EOL > resources/views/welcome.blade.php
     @vite('resources/css/app.css')
 </head>
 <body>
-    <h1 class="text-grey-600">Welcome to Laravel with Vite</h1>
+    <h1 class="mb-6 text-5xl font-bold">
+        Laravel Welcome
+    </h1>
 </body>
 </html>
 EOL
@@ -197,13 +196,16 @@ sed -i "s/DB_DATABASE=.*/DB_DATABASE=laravel/" .env
 sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USER/" .env
 sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env
 
+echo "--- Install dependencies (first sail install will take a while) ..."
+composer install
+
 # 6. Start the Docker containers
 ./vendor/bin/sail up -d
 
-# Create the sessions table migration
-php artisan make:migration create_sessions_table --table=sessions
+echo "--- Install npm packages ..."
+./vendor/bin/sail npm install
 
-# Run the migrations
-./vendor/bin/sail artisan migrate
+echo "--- Stop sail containers ..."
+./vendor/bin/sail stop
 
 echo "Laravel project completed."
