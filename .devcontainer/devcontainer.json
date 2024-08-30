@@ -1,0 +1,16 @@
+{
+    "name": "Laravel Devcontainer",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "postCreateCommand": "bash setup.sh",
+    "remoteUser": "vscode",
+    "extensions": [
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers"
+    ]
+}
