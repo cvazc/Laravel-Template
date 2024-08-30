@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Variables
-PROJECT_NAME="laravel-test"
+PROJECT_NAME="laravel"
 DB_USER="sebas"
 DB_PASSWORD="sebas"
 PHP_VERSION="8.3"
